@@ -227,3 +227,23 @@ export const useDeleteUserInterest = () => {
         },
     });
 };
+
+// Real-time subscriptions
+export const useRealTimeEvents = () => {
+    const queryClient = useQueryClient();
+
+    React.useEffect(() => {
+        const subscription = supabase
+            .channel('events')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, (payload) => {
+                queryClient.invalidateQueries('events');
+            })
+            .subscribe();
+
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, [queryClient]);
+
+    return useEvents();
+};
