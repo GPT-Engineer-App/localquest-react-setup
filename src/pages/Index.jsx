@@ -2,6 +2,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import AdvancedSearch from '@/components/AdvancedSearch';
 import RecommendedEvents from '@/components/RecommendedEvents';
+import PopularEvents from '@/components/PopularEvents';
+import RecommendationReasons from '@/components/RecommendationReasons';
 import UserDiscovery from '@/components/UserDiscovery';
 import Groups from '@/components/Groups';
 
@@ -18,9 +20,19 @@ const Index = () => {
         <h2 className="text-2xl font-semibold mb-4">Search Events</h2>
         <AdvancedSearch />
       </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">Recommended for You</h2>
+          <RecommendedEvents />
+        </div>
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">Popular Events</h2>
+          <PopularEvents />
+        </div>
+      </div>
       <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Recommended for You</h2>
-        <RecommendedEvents />
+        <h2 className="text-2xl font-semibold mb-4">Why We Recommend These Events</h2>
+        <RecommendationReasons />
       </div>
       <div className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Discover Users</h2>
