@@ -1,16 +1,16 @@
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import Layout from "./layouts/navbar"; // available: clean, navbar, sidebar
+import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
+import Layout from "./layouts/navbar";
 import { navItems } from "./nav-items";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 const queryClient = new QueryClient();
 
-const App = () => {
+function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
         <Toaster />
         <Router>
           <Routes>
@@ -21,9 +21,9 @@ const App = () => {
             </Route>
           </Routes>
         </Router>
-      </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
-};
+}
 
 export default App;
