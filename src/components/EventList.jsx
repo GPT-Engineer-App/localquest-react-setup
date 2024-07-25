@@ -13,6 +13,7 @@ import { Select } from '@/components/ui/select';
 import { useRealTimeEvents } from '@/integrations/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import Notification from './Notification';
+import { withErrorHandling } from '@/utils/errorHandler';
 
 const EventList = () => {
   const { data: events, isLoading, error } = useRealTimeEvents();
@@ -134,4 +135,4 @@ const EventList = () => {
   );
 };
 
-export default EventList;
+export default withErrorHandling(EventList);

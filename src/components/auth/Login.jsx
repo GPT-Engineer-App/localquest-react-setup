@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { withErrorHandling } from '@/utils/errorHandler';
 
 const schema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
@@ -20,7 +21,7 @@ const Login = () => {
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = async (data) => {
+  const onSubmit = withErrorHandling(async (data) => {
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -29,12 +30,10 @@ const Login = () => {
       });
       if (error) throw error;
       toast.success('Logged in successfully!');
-    } catch (error) {
-      toast.error(error.message);
     } finally {
       setIsLoading(false);
     }
-  };
+  });
 
   return (
     <motion.div
