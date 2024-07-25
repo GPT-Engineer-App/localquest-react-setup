@@ -1,8 +1,9 @@
-import { Home, Map, Calendar, User } from "lucide-react";
+import { Home, Map, Calendar, User, LogIn } from "lucide-react";
 import Index from "./pages/Index.jsx";
 import Explore from "./pages/Explore.jsx";
 import Events from "./pages/Events.jsx";
 import Profile from "./pages/Profile.jsx";
+import Auth from "./pages/Auth.jsx";
 
 export const navItems = [
   {
@@ -28,5 +29,11 @@ export const navItems = [
     to: "/profile",
     icon: <User className="h-4 w-4" />,
     page: <Profile />,
+  },
+  {
+    title: "Auth",
+    to: "/auth",
+    icon: <LogIn className="h-4 w-4" />,
+    page: <Auth />,
   },
 ];
