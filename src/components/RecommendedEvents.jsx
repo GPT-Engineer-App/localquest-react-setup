@@ -7,66 +7,42 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth';
 const RecommendedEvents = () => {
   const { session } = useSupabaseAuth();
 
-  const { data: userInterests, isLoading: interestsLoading } = useQuery({
-    queryKey: ['userInterests', session?.user?.id],
+  const { data: recommendedEvents, isLoading, error } = useQuery({
+    queryKey: ['recommendedEvents', session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return [];
-      const { data, error } = await supabase
-        .from('user_interests')
-        .select('interest')
-        .eq('user_id', session.user.id);
-      if (error) throw error;
-      return data.map(item => item.interest);
-    },
-    enabled: !!session?.user?.id,
-  });
-
-  const { data: recommendedEvents, isLoading: eventsLoading, error } = useQuery({
-    queryKey: ['recommendedEvents', userInterests],
-    queryFn: async () => {
-      if (!userInterests || userInterests.length === 0) return [];
+      // This is a placeholder query. In a real-world scenario, this would be replaced with a call to a machine learning service.
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .in('category', userInterests)
-        .order('event_date', { ascending: true })
+        .order('created_at', { ascending: false })
         .limit(5);
       if (error) throw error;
       return data;
     },
-    enabled: !!userInterests && userInterests.length > 0,
+    enabled: !!session?.user?.id,
   });
 
-  if (!session) {
-    return <p>Please log in to see recommended events.</p>;
-  }
-
-  if (interestsLoading || eventsLoading) {
-    return <p>Loading recommendations...</p>;
-  }
-
-  if (error) {
-    return <p>Error loading recommendations: {error.message}</p>;
-  }
+  if (isLoading) return <div>Loading recommended events...</div>;
+  if (error) return <div>Error loading recommended events: {error.message}</div>;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recommended Events</CardTitle>
+        <CardTitle>Recommended Events for You</CardTitle>
       </CardHeader>
       <CardContent>
         {recommendedEvents && recommendedEvents.length > 0 ? (
-          <ul>
-            {recommendedEvents.map((event) => (
-              <li key={event.id} className="mb-4">
+          <ul className="space-y-2">
+            {recommendedEvents.map(event => (
+              <li key={event.id} className="border-b pb-2 last:border-b-0">
                 <h4 className="font-medium">{event.title}</h4>
-                <p className="text-sm text-gray-600">{event.description}</p>
-                <p className="text-sm text-gray-500">Category: {event.category}</p>
+                <p className="text-sm text-muted-foreground">{event.description}</p>
               </li>
             ))}
           </ul>
         ) : (
-          <p>No recommended events found based on your interests.</p>
+          <p>No recommended events available.</p>
         )}
       </CardContent>
     </Card>
