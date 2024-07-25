@@ -66,7 +66,6 @@ const Events = () => {
         <DatePicker
           selected={filters.date}
           onChange={date => handleFilterChange('date', date)}
-          placeholderText="Select date"
         />
         <Input
           type="number"
