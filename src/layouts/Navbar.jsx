@@ -1,6 +1,9 @@
 import { NavLink } from "react-router-dom";
-import { Home, Calendar, User, PlusCircle } from "lucide-react";
+import { Home, Calendar, User, PlusCircle, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
+import { toast } from "react-hot-toast";
 
 const Navbar = () => {
   const navItems = [
@@ -9,6 +12,15 @@ const Navbar = () => {
     { to: "/profile", icon: <User className="w-4 h-4" />, label: "Profile" },
     { to: "/create-event", icon: <PlusCircle className="w-4 h-4" />, label: "Create Event" },
   ];
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast.success("Logged out successfully");
+    } catch (error) {
+      toast.error("Error logging out");
+    }
+  };
 
   return (
     <nav className="bg-background border-b">
@@ -33,7 +45,16 @@ const Navbar = () => {
             ))}
           </div>
           <div>
-            <Button variant="outline">Login</Button>
+            {auth.currentUser ? (
+              <Button variant="outline" onClick={handleLogout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            ) : (
+              <NavLink to="/auth">
+                <Button variant="outline">Login</Button>
+              </NavLink>
+            )}
           </div>
         </div>
       </div>

@@ -1,8 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "sonner";
+import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/components/theme-provider";
-import { SupabaseAuthProvider } from "@/integrations/supabase/auth";
 import Layout from "./layouts/Layout";
 import Home from "./pages/Home";
 import Events from "./pages/Events";
@@ -15,23 +14,21 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <SupabaseAuthProvider>
-        <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-          <Toaster />
-          <NotificationWrapper>
-            <Router>
-              <Routes>
-                <Route path="/" element={<Layout />}>
-                  <Route index element={<Home />} />
-                  <Route path="events" element={<Events />} />
-                  <Route path="profile" element={<Profile />} />
-                  <Route path="create-event" element={<CreateEvent />} />
-                </Route>
-              </Routes>
-            </Router>
-          </NotificationWrapper>
-        </ThemeProvider>
-      </SupabaseAuthProvider>
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+        <Toaster />
+        <NotificationWrapper>
+          <Router>
+            <Routes>
+              <Route path="/" element={<Layout />}>
+                <Route index element={<Home />} />
+                <Route path="events" element={<Events />} />
+                <Route path="profile" element={<Profile />} />
+                <Route path="create-event" element={<CreateEvent />} />
+              </Route>
+            </Routes>
+          </Router>
+        </NotificationWrapper>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
