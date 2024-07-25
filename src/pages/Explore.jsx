@@ -1,4 +1,4 @@
-import MapComponent from '@/components/Map';
+import MapComponent from '../components/Map';
 
 const Explore = () => {
   return (

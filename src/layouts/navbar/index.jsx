@@ -1,16 +1,21 @@
-import { navItems } from "@/nav-items";
-import { Outlet } from "react-router-dom";
-import { DesktopNavbar } from "./_components/DesktopNavbar";
-import { MobileSheet } from "./_components/MobileSheet";
+import { navItems } from "../../nav-items";
+import { Outlet, Link } from "react-router-dom";
 
 const Layout = () => {
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 justify-between">
-        <DesktopNavbar navItems={navItems} />
-        <MobileSheet navItems={navItems} />
+    <div className="flex flex-col min-h-screen">
+      <header className="bg-gray-800 text-white p-4">
+        <nav>
+          <ul className="flex space-x-4">
+            {navItems.map((item) => (
+              <li key={item.to}>
+                <Link to={item.to}>{item.title}</Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </header>
-      <main className="flex-grow overflow-auto">
+      <main className="flex-grow p-4">
         <Outlet />
       </main>
     </div>
