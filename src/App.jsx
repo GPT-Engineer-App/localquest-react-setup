@@ -1,10 +1,13 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
-import Layout from "./layouts/navbar";
-import { navItems } from "./nav-items";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { SupabaseAuthProvider } from "@/integrations/supabase/auth";
+import Layout from "./layouts/Layout";
+import Home from "./pages/Home";
+import Events from "./pages/Events";
+import Profile from "./pages/Profile";
+import CreateEvent from "./pages/CreateEvent";
 
 const queryClient = new QueryClient();
 
@@ -17,9 +20,10 @@ function App() {
           <Router>
             <Routes>
               <Route path="/" element={<Layout />}>
-                {navItems.map((item) => (
-                  <Route key={item.to} path={item.to} element={item.page} />
-                ))}
+                <Route index element={<Home />} />
+                <Route path="events" element={<Events />} />
+                <Route path="profile" element={<Profile />} />
+                <Route path="create-event" element={<CreateEvent />} />
               </Route>
             </Routes>
           </Router>
