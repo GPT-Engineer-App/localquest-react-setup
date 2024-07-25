@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSupabaseAuth } from "@/integrations/supabase/auth";
+import { calculateReputation } from "@/utils/reputationCalculator";
 
 const profileSchema = z.object({
   full_name: z.string().min(2, "Full name must be at least 2 characters"),
@@ -43,7 +44,7 @@ const Profile = () => {
       if (!session) return null;
       const { data, error } = await supabase
         .from("user_profiles")
-        .select("*")
+        .select("*, event_attendees(*), event_reviews(*)")
         .eq("id", session.user.id)
         .single();
       if (error) throw error;
@@ -134,6 +135,8 @@ const Profile = () => {
     return <div>Please log in to view your profile.</div>;
   }
 
+  const userReputation = calculateReputation(profile);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -211,8 +214,11 @@ const Profile = () => {
                 <p className="mb-2">
                   <strong>Bio:</strong> {profile.bio}
                 </p>
-                <p className="mb-4">
+                <p className="mb-2">
                   <strong>Location:</strong> {profile.location}
+                </p>
+                <p className="mb-4">
+                  <strong>Reputation:</strong> {userReputation}
                 </p>
                 <Button onClick={() => setEditMode(true)}>Edit Profile</Button>
               </motion.div>
