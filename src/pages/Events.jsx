@@ -12,6 +12,9 @@ import { useRealTimeEvents } from '@/integrations/supabase';
 import { NotificationWrapper } from '@/components/Notification';
 import SocialShare from '@/components/SocialShare';
 import Messaging from '@/components/Messaging';
+import CommentSection from '@/components/CommentSection';
+import PhotoGallery from '@/components/PhotoGallery';
+import QASection from '@/components/QASection';
 
 const Events = () => {
   const [view, setView] = useState('list');
@@ -108,6 +111,15 @@ const Events = () => {
             </div>
             <div className="mt-8">
               <Messaging eventId={selectedEvent.id} />
+            </div>
+            <div className="mt-8">
+              <CommentSection eventId={selectedEvent.id} />
+            </div>
+            <div className="mt-8">
+              <PhotoGallery eventId={selectedEvent.id} />
+            </div>
+            <div className="mt-8">
+              <QASection eventId={selectedEvent.id} />
             </div>
           </div>
         )}
