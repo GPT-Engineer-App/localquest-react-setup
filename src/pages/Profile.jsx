@@ -4,20 +4,19 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase";
+import { toast } from "react-hot-toast";
+import { auth } from "@/lib/firebase";
+import { updateProfile } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useSupabaseAuth } from "@/integrations/supabase/auth";
-import { calculateReputation } from "@/utils/reputationCalculator";
 
 const profileSchema = z.object({
-  full_name: z.string().min(2, "Full name must be at least 2 characters"),
-  bio: z.string().max(500, "Bio must be less than 500 characters"),
-  location: z.string().min(2, "Location must be at least 2 characters"),
+  displayName: z.string().min(2, "Full name must be at least 2 characters"),
+  // Note: We can't update email directly with updateProfile, it requires email verification
+  // photoURL can be added here if you want to allow users to set a profile picture
 });
 
 const interestsOptions = [
@@ -36,55 +35,25 @@ const interestsOptions = [
 const Profile = () => {
   const queryClient = useQueryClient();
   const [editMode, setEditMode] = useState(false);
-  const { session } = useSupabaseAuth();
-
-  const { data: profile, isLoading: profileLoading } = useQuery({
-    queryKey: ["profile"],
-    queryFn: async () => {
-      if (!session) return null;
-      const { data, error } = await supabase
-        .from("user_profiles")
-        .select("*, event_attendees(*), event_reviews(*)")
-        .eq("id", session.user.id)
-        .single();
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!session,
-  });
-
-  const { data: interests, isLoading: interestsLoading } = useQuery({
-    queryKey: ["interests"],
-    queryFn: async () => {
-      if (!session) return [];
-      const { data, error } = await supabase
-        .from("user_interests")
-        .select("interest")
-        .eq("user_id", session.user.id);
-      if (error) throw error;
-      return data.map((item) => item.interest);
-    },
-    enabled: !!session,
-  });
+  const [interests, setInterests] = useState([]);
+  const user = auth.currentUser;
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm({
     resolver: zodResolver(profileSchema),
-    defaultValues: profile,
+    defaultValues: {
+      displayName: user?.displayName || "",
+    },
   });
 
   useEffect(() => {
-    if (profile) {
-      reset(profile);
+    if (user) {
+      reset({ displayName: user.displayName || "" });
     }
-  }, [profile, reset]);
+  }, [user, reset]);
 
-  const updateProfile = useMutation({
+  const updateProfileMutation = useMutation({
     mutationFn: async (data) => {
-      const { error } = await supabase
-        .from("user_profiles")
-        .update(data)
-        .eq("id", session.user.id);
-      if (error) throw error;
+      await updateProfile(auth.currentUser, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries("profile");
@@ -96,46 +65,21 @@ const Profile = () => {
     },
   });
 
-  const updateInterests = useMutation({
-    mutationFn: async (newInterests) => {
-      const { error } = await supabase.from("user_interests").upsert(
-        newInterests.map((interest) => ({
-          user_id: session.user.id,
-          interest,
-        })),
-        { onConflict: ["user_id", "interest"] }
-      );
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries("interests");
-      toast.success("Interests updated successfully");
-    },
-    onError: (error) => {
-      toast.error(`Error updating interests: ${error.message}`);
-    },
-  });
-
   const onSubmit = (data) => {
-    updateProfile.mutate(data);
+    updateProfileMutation.mutate(data);
   };
 
   const handleInterestChange = (interest) => {
-    const newInterests = interests.includes(interest)
-      ? interests.filter((i) => i !== interest)
-      : [...interests, interest];
-    updateInterests.mutate(newInterests);
+    setInterests((prev) =>
+      prev.includes(interest)
+        ? prev.filter((i) => i !== interest)
+        : [...prev, interest]
+    );
   };
 
-  if (profileLoading || interestsLoading) {
-    return <div>Loading profile...</div>;
-  }
-
-  if (!session) {
+  if (!user) {
     return <div>Please log in to view your profile.</div>;
   }
-
-  const userReputation = calculateReputation(profile);
 
   return (
     <motion.div
@@ -154,41 +98,15 @@ const Profile = () => {
             {editMode ? (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div>
-                  <Label htmlFor="full_name">Full Name</Label>
+                  <Label htmlFor="displayName">Full Name</Label>
                   <Input
-                    id="full_name"
-                    {...register("full_name")}
-                    className={errors.full_name ? "border-red-500" : ""}
+                    id="displayName"
+                    {...register("displayName")}
+                    className={errors.displayName ? "border-red-500" : ""}
                   />
-                  {errors.full_name && (
+                  {errors.displayName && (
                     <p className="text-red-500 text-sm mt-1">
-                      {errors.full_name.message}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <Label htmlFor="bio">Bio</Label>
-                  <Input
-                    id="bio"
-                    {...register("bio")}
-                    className={errors.bio ? "border-red-500" : ""}
-                  />
-                  {errors.bio && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.bio.message}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <Label htmlFor="location">Location</Label>
-                  <Input
-                    id="location"
-                    {...register("location")}
-                    className={errors.location ? "border-red-500" : ""}
-                  />
-                  {errors.location && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.location.message}
+                      {errors.displayName.message}
                     </p>
                   )}
                 </div>
@@ -209,16 +127,10 @@ const Profile = () => {
                 transition={{ duration: 0.5 }}
               >
                 <p className="mb-2">
-                  <strong>Full Name:</strong> {profile.full_name}
+                  <strong>Full Name:</strong> {user.displayName || "Not set"}
                 </p>
                 <p className="mb-2">
-                  <strong>Bio:</strong> {profile.bio}
-                </p>
-                <p className="mb-2">
-                  <strong>Location:</strong> {profile.location}
-                </p>
-                <p className="mb-4">
-                  <strong>Reputation:</strong> {userReputation}
+                  <strong>Email:</strong> {user.email}
                 </p>
                 <Button onClick={() => setEditMode(true)}>Edit Profile</Button>
               </motion.div>
