@@ -60,6 +60,8 @@ const fromSupabase = async (query) => {
 | created_at  | timestamptz | string | false    |
 | updated_at  | timestamptz | string | false    |
 | fts         | tsvector    | string | false    |
+| price       | numeric     | number | false    |
+| accessibility_features | text[]   | array  | false    |
 
 ### user_interests
 
