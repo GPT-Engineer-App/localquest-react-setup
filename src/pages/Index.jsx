@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import Search from '@/components/Search';
+import AdvancedSearch from '@/components/AdvancedSearch';
 import RecommendedEvents from '@/components/RecommendedEvents';
 
 const Index = () => {
@@ -14,7 +14,7 @@ const Index = () => {
       <h1 className="text-4xl font-bold mb-8">Welcome to Event App</h1>
       <div className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Search Events</h2>
-        <Search />
+        <AdvancedSearch />
       </div>
       <div>
         <h2 className="text-2xl font-semibold mb-4">Recommended for You</h2>
