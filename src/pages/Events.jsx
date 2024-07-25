@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, isSameDay } from 'date-fns';
 import { supabase } from '@/integrations/supabase';
 import EventList from '@/components/EventList';
 import EventCard from '@/components/EventCard';
+import EventMap from '@/components/EventMap';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -78,19 +79,22 @@ const Events = () => {
         <Button onClick={() => setView('list')} variant={view === 'list' ? 'default' : 'outline'} className="mr-2">
           List View
         </Button>
-        <Button onClick={() => setView('grid')} variant={view === 'grid' ? 'default' : 'outline'}>
+        <Button onClick={() => setView('grid')} variant={view === 'grid' ? 'default' : 'outline'} className="mr-2">
           Grid View
         </Button>
+        <Button onClick={() => setView('map')} variant={view === 'map' ? 'default' : 'outline'}>
+          Map View
+        </Button>
       </div>
-      {view === 'list' ? (
-        <EventList events={filteredEvents} />
-      ) : (
+      {view === 'list' && <EventList events={filteredEvents} />}
+      {view === 'grid' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredEvents.map(event => (
             <EventCard key={event.id} event={event} />
           ))}
         </div>
       )}
+      {view === 'map' && <EventMap events={filteredEvents} />}
     </motion.div>
   );
 };
