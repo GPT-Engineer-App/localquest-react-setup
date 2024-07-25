@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,10 +11,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useSupabaseAuth } from "@/integrations/supabase/auth";
 
 const profileSchema = z.object({
   full_name: z.string().min(2, "Full name must be at least 2 characters"),
   bio: z.string().max(500, "Bio must be less than 500 characters"),
+  location: z.string().min(2, "Location must be at least 2 characters"),
 });
 
 const interestsOptions = [
@@ -33,41 +35,54 @@ const interestsOptions = [
 const Profile = () => {
   const queryClient = useQueryClient();
   const [editMode, setEditMode] = useState(false);
+  const { session } = useSupabaseAuth();
 
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
+      if (!session) return null;
       const { data, error } = await supabase
         .from("user_profiles")
         .select("*")
+        .eq("id", session.user.id)
         .single();
       if (error) throw error;
       return data;
     },
+    enabled: !!session,
   });
 
   const { data: interests, isLoading: interestsLoading } = useQuery({
     queryKey: ["interests"],
     queryFn: async () => {
+      if (!session) return [];
       const { data, error } = await supabase
         .from("user_interests")
-        .select("interest");
+        .select("interest")
+        .eq("user_id", session.user.id);
       if (error) throw error;
       return data.map((item) => item.interest);
     },
+    enabled: !!session,
   });
 
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors }, reset } = useForm({
     resolver: zodResolver(profileSchema),
     defaultValues: profile,
   });
+
+  useEffect(() => {
+    if (profile) {
+      reset(profile);
+    }
+  }, [profile, reset]);
 
   const updateProfile = useMutation({
     mutationFn: async (data) => {
       const { error } = await supabase
         .from("user_profiles")
         .update(data)
-        .eq("id", profile.id);
+        .eq("id", session.user.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -84,7 +99,7 @@ const Profile = () => {
     mutationFn: async (newInterests) => {
       const { error } = await supabase.from("user_interests").upsert(
         newInterests.map((interest) => ({
-          user_id: profile.id,
+          user_id: session.user.id,
           interest,
         })),
         { onConflict: ["user_id", "interest"] }
@@ -113,6 +128,10 @@ const Profile = () => {
 
   if (profileLoading || interestsLoading) {
     return <div>Loading profile...</div>;
+  }
+
+  if (!session) {
+    return <div>Please log in to view your profile.</div>;
   }
 
   return (
@@ -157,6 +176,19 @@ const Profile = () => {
                     </p>
                   )}
                 </div>
+                <div>
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    {...register("location")}
+                    className={errors.location ? "border-red-500" : ""}
+                  />
+                  {errors.location && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.location.message}
+                    </p>
+                  )}
+                </div>
                 <Button type="submit">Save Changes</Button>
                 <Button
                   type="button"
@@ -176,8 +208,11 @@ const Profile = () => {
                 <p className="mb-2">
                   <strong>Full Name:</strong> {profile.full_name}
                 </p>
-                <p className="mb-4">
+                <p className="mb-2">
                   <strong>Bio:</strong> {profile.bio}
+                </p>
+                <p className="mb-4">
+                  <strong>Location:</strong> {profile.location}
                 </p>
                 <Button onClick={() => setEditMode(true)}>Edit Profile</Button>
               </motion.div>
