@@ -79,7 +79,7 @@ export const useAddUserProfile = () => {
     return useMutation({
         mutationFn: (newProfile) => fromSupabase(supabase.from('user_profiles').insert([newProfile])),
         onSuccess: () => {
-            queryClient.invalidateQueries('userProfiles');
+            queryClient.invalidateQueries({ queryKey: ['userProfiles'] });
         },
     });
 };
@@ -89,7 +89,7 @@ export const useUpdateUserProfile = () => {
     return useMutation({
         mutationFn: ({ id, ...updateData }) => fromSupabase(supabase.from('user_profiles').update(updateData).eq('id', id)),
         onSuccess: () => {
-            queryClient.invalidateQueries('userProfiles');
+            queryClient.invalidateQueries({ queryKey: ['userProfiles'] });
         },
     });
 };
@@ -99,7 +99,7 @@ export const useDeleteUserProfile = () => {
     return useMutation({
         mutationFn: (id) => fromSupabase(supabase.from('user_profiles').delete().eq('id', id)),
         onSuccess: () => {
-            queryClient.invalidateQueries('userProfiles');
+            queryClient.invalidateQueries({ queryKey: ['userProfiles'] });
         },
     });
 };
@@ -120,7 +120,7 @@ export const useAddEventAttendee = () => {
     return useMutation({
         mutationFn: (newAttendee) => fromSupabase(supabase.from('event_attendees').insert([newAttendee])),
         onSuccess: () => {
-            queryClient.invalidateQueries('eventAttendees');
+            queryClient.invalidateQueries({ queryKey: ['eventAttendees'] });
         },
     });
 };
@@ -130,7 +130,7 @@ export const useUpdateEventAttendee = () => {
     return useMutation({
         mutationFn: ({ id, ...updateData }) => fromSupabase(supabase.from('event_attendees').update(updateData).eq('id', id)),
         onSuccess: () => {
-            queryClient.invalidateQueries('eventAttendees');
+            queryClient.invalidateQueries({ queryKey: ['eventAttendees'] });
         },
     });
 };
@@ -140,7 +140,7 @@ export const useDeleteEventAttendee = () => {
     return useMutation({
         mutationFn: (id) => fromSupabase(supabase.from('event_attendees').delete().eq('id', id)),
         onSuccess: () => {
-            queryClient.invalidateQueries('eventAttendees');
+            queryClient.invalidateQueries({ queryKey: ['eventAttendees'] });
         },
     });
 };
@@ -161,7 +161,7 @@ export const useAddEvent = () => {
     return useMutation({
         mutationFn: (newEvent) => fromSupabase(supabase.from('events').insert([newEvent])),
         onSuccess: () => {
-            queryClient.invalidateQueries('events');
+            queryClient.invalidateQueries({ queryKey: ['events'] });
         },
     });
 };
@@ -171,7 +171,7 @@ export const useUpdateEvent = () => {
     return useMutation({
         mutationFn: ({ id, ...updateData }) => fromSupabase(supabase.from('events').update(updateData).eq('id', id)),
         onSuccess: () => {
-            queryClient.invalidateQueries('events');
+            queryClient.invalidateQueries({ queryKey: ['events'] });
         },
     });
 };
@@ -181,7 +181,7 @@ export const useDeleteEvent = () => {
     return useMutation({
         mutationFn: (id) => fromSupabase(supabase.from('events').delete().eq('id', id)),
         onSuccess: () => {
-            queryClient.invalidateQueries('events');
+            queryClient.invalidateQueries({ queryKey: ['events'] });
         },
     });
 };
@@ -202,7 +202,7 @@ export const useAddUserInterest = () => {
     return useMutation({
         mutationFn: (newInterest) => fromSupabase(supabase.from('user_interests').insert([newInterest])),
         onSuccess: () => {
-            queryClient.invalidateQueries('userInterests');
+            queryClient.invalidateQueries({ queryKey: ['userInterests'] });
         },
     });
 };
@@ -212,7 +212,7 @@ export const useUpdateUserInterest = () => {
     return useMutation({
         mutationFn: ({ id, ...updateData }) => fromSupabase(supabase.from('user_interests').update(updateData).eq('id', id)),
         onSuccess: () => {
-            queryClient.invalidateQueries('userInterests');
+            queryClient.invalidateQueries({ queryKey: ['userInterests'] });
         },
     });
 };
@@ -222,7 +222,7 @@ export const useDeleteUserInterest = () => {
     return useMutation({
         mutationFn: (id) => fromSupabase(supabase.from('user_interests').delete().eq('id', id)),
         onSuccess: () => {
-            queryClient.invalidateQueries('userInterests');
+            queryClient.invalidateQueries({ queryKey: ['userInterests'] });
         },
     });
 };
